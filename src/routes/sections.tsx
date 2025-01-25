@@ -43,7 +43,7 @@ export function Router() {
       ),
       children: [
         { element: <HomePage />, index: true },
-        { path: '/students', element: authenticated ? <UserPage /> : <Navigate to="/sign-in" /> },
+        { path: '/students', element: authenticated ? <UserPage /> : <Navigate to='/sign-in'/> },
       ],
     },
     {
