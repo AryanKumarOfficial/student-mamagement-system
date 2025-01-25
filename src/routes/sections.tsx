@@ -44,13 +44,11 @@ export function Router() {
       ),
       children: [
         { element: <HomePage />, index: true },
-        { path: 'user', element: <UserPage /> },
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
+        { path: '/students', element: <UserPage /> },
       ],
     },
     {
-      path: 'sign-in',
+      path: '/sign-in',
       element: (
         <AuthLayout>
           <SignInPage />
