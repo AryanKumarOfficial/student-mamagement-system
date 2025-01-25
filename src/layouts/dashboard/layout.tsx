@@ -1,20 +1,18 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 
 import { Main } from './main';
 import { layoutClasses } from '../classes';
 import { NavMobile, NavDesktop } from './nav';
-import { navData } from '../config-nav-dashboard';
+import useAuthStore from '../../store/authstore';
 import { _workspaces } from '../config-nav-workspace';
 import { MenuButton } from '../components/menu-button';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
-import { AccountPopover } from '../components/account-popover';
+import { navData, AuthNavData } from '../config-nav-dashboard';
 
 // ----------------------------------------------------------------------
 
@@ -27,11 +25,15 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) {
+  const { authenticated } = useAuthStore();
   const theme = useTheme();
 
   const [navOpen, setNavOpen] = useState(false);
 
   const layoutQuery: Breakpoint = 'lg';
+  useEffect(() => {
+    console.log('authenticated', authenticated);
+  }, [authenticated]);
 
   return (
     <LayoutSection
@@ -49,11 +51,6 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
           }}
           sx={header?.sx}
           slots={{
-            topArea: (
-              <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-                This is an info Alert.
-              </Alert>
-            ),
             leftArea: (
               <>
                 <MenuButton
@@ -64,35 +61,12 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
                   }}
                 />
                 <NavMobile
-                  data={navData}
+                  data={!authenticated ? navData : AuthNavData}
                   open={navOpen}
                   onClose={() => setNavOpen(false)}
                   workspaces={_workspaces}
                 />
               </>
-            ),
-            rightArea: (
-              <Box gap={1} display="flex" alignItems="center">
-                <AccountPopover
-                  // data={[
-                  //   {
-                  //     label: 'Home',
-                  //     href: '/',
-                  //     icon: <Iconify width={22} icon="solar:home-angle-bold-duotone" />,
-                  //   },
-                  //   {
-                  //     label: 'Profile',
-                  //     href: '#',
-                  //     icon: <Iconify width={22} icon="solar:shield-keyhole-bold-duotone" />,
-                  //   },
-                  //   {
-                  //     label: 'Settings',
-                  //     href: '#',
-                  //     icon: <Iconify width={22} icon="solar:settings-bold-duotone" />,
-                  //   },
-                  // ]}
-                />
-              </Box>
             ),
           }}
         />
@@ -101,7 +75,11 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
        * Sidebar
        *************************************** */
       sidebarSection={
-        <NavDesktop data={navData} layoutQuery={layoutQuery} workspaces={_workspaces} />
+        <NavDesktop
+          data={!authenticated ? navData : AuthNavData}
+          layoutQuery={layoutQuery}
+          workspaces={_workspaces}
+        />
       }
       /** **************************************
        * Footer

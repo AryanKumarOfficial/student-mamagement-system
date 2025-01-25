@@ -13,6 +13,20 @@ export const navData = [
     path: '/',
     icon: icon('ic-analytics'),
   },
+
+  {
+    title: 'Sign in',
+    path: '/sign-in',
+    icon: icon('ic-lock'),
+  },
+];
+
+export const AuthNavData = [
+  {
+    title: 'Dashboard',
+    path: '/',
+    icon: icon('ic-analytics'),
+  },
   {
     title: 'Students',
     path: '/students',
@@ -24,8 +38,8 @@ export const navData = [
     ),
   },
   {
-    title: 'Sign in',
-    path: '/sign-in',
+    title: 'Logout',
+    path: '#',
     icon: icon('ic-lock'),
   },
 ];

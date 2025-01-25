@@ -7,8 +7,7 @@ import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgr
 import { varAlpha } from 'src/theme/styles';
 import { AuthLayout } from 'src/layouts/auth';
 import { DashboardLayout } from 'src/layouts/dashboard';
-import { Toaster } from 'react-hot-toast';
-
+import useAuthStore from '../store/authstore';
 // ----------------------------------------------------------------------
 
 export const HomePage = lazy(() => import('src/pages/home'));
@@ -32,6 +31,7 @@ const renderFallback = (
 );
 
 export function Router() {
+  const { authenticated } = useAuthStore();
   return useRoutes([
     {
       element: (
@@ -43,7 +43,7 @@ export function Router() {
       ),
       children: [
         { element: <HomePage />, index: true },
-        { path: '/students', element: <UserPage /> },
+        { path: '/students', element: authenticated ? <UserPage /> : <Navigate to="/sign-in" /> },
       ],
     },
     {

@@ -1,6 +1,7 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
 
-import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import React, { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
@@ -8,7 +9,7 @@ import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
-import { usePathname } from 'src/routes/hooks';
+import { usePathname, useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { varAlpha } from 'src/theme/styles';
@@ -16,8 +17,7 @@ import { varAlpha } from 'src/theme/styles';
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
 
-import { NavUpgrade } from '../components/nav-upgrade';
-import { WorkspacesPopover } from '../components/workspaces-popover';
+import useAuthStore from '../../store/authstore';
 
 import type { WorkspacesPopoverProps } from '../components/workspaces-popover';
 
@@ -115,16 +115,38 @@ export function NavMobile({
 // ----------------------------------------------------------------------
 
 export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
+  const router = useRouter();
+  const { logout, error } = useAuthStore();
   const pathname = usePathname();
-
+  const handleClick = async (e: React.MouseEvent, link: string) => {
+    e.preventDefault();
+    if (link === '#') {
+      try {
+        await logout();
+        toast.success('Logged out!');
+      } catch (err: any) {
+        console.log(err);
+        toast.error(error ?? `Failed to logout`);
+      }
+    } else {
+      router.push(link ?? `/`);
+    }
+  };
   return (
     <>
       <Logo />
 
       <Scrollbar fillContent>
-        <Box component="nav" style={{
+        <Box
+          component="nav"
+          style={{
             margin: '2rem 0',
-        }} display="flex" flex="1 1 auto" flexDirection="column" sx={sx}>
+          }}
+          display="flex"
+          flex="1 1 auto"
+          flexDirection="column"
+          sx={sx}
+        >
           <Box component="ul" gap={0.5} display="flex" flexDirection="column">
             {data.map((item) => {
               const isActived = item.path === pathname;
@@ -135,6 +157,7 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
                     disableGutters
                     component={RouterLink}
                     href={item.path}
+                    onClick={(e) => handleClick(e, item.path)}
                     sx={{
                       pl: 2,
                       py: 1,
@@ -173,7 +196,6 @@ export function NavContent({ data, slots, workspaces, sx }: NavContentProps) {
       </Scrollbar>
 
       {slots?.bottomArea}
-
     </>
   );
 }
