@@ -15,7 +15,6 @@ import {
   DialogContentText,
 } from '@mui/material';
 
-
 import { z } from 'zod';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
@@ -76,6 +75,9 @@ export function EditStudentDialog({
 }) {
   const [formData, setFormData] = useState<StudentProps | null>(student);
   const { updateStudent } = useStudentStore();
+  useEffect(() => {
+    console.log('students ', student);
+  }, [student]);
   const {
     control,
     handleSubmit,
@@ -84,17 +86,17 @@ export function EditStudentDialog({
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name:student?.name?? '',
-      email:student?.email ?? '',
-      phone:student?.phone ?? '',
-      class:student?.class ?? '',
-      section:student?.section ?? '',
+      name: student?.name ?? '',
+      email: student?.email ?? '',
+      phone: student?.phone ?? '',
+      class: student?.class ?? '',
+      section: student?.section ?? '',
       roll: student?.roll ?? '',
-      school:student?.school ?? '',
-      gender:student?.gender ?? '',
-      status:student?.status ?? '',
-      grade:student?.grade ?? '',
-      address:student?.address ?? '',
+      school: student?.school ?? '',
+      gender: student?.gender ?? '',
+      status: student?.status ?? '',
+      grade: student?.grade ?? '',
+      address: student?.address ?? '',
       date: null,
     },
   });
@@ -102,7 +104,7 @@ export function EditStudentDialog({
   const onSubmit = async (data: FormData) => {
     console.log('Data:', data);
     try {
-      await updateStudent(data, '');
+      await updateStudent(data, String(student?.id));
       toast.success('Student updated successfully.');
       onClose();
     } catch (error) {
@@ -114,126 +116,123 @@ export function EditStudentDialog({
   };
 
   const renderTextField = (name: keyof FormData, label: string, type = 'text') => (
-      <Controller
-          name={name}
-          control={control}
-          render={({ field }) => (
-              <TextField
-                  {...field}
-                  margin="dense"
-                  multiline={name === 'address'}
-                  label={label}
-                  type={type}
-                  rows={name === 'address' ? 4 : 1}
-                  fullWidth
-                  error={!!errors[name]}
-                  helperText={errors[name]?.message}
-              />
-          )}
-      />
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <TextField
+          {...field}
+          margin="dense"
+          multiline={name === 'address'}
+          label={label}
+          type={type}
+          rows={name === 'address' ? 4 : 1}
+          fullWidth
+          error={!!errors[name]}
+          helperText={errors[name]?.message}
+        />
+      )}
+    />
   );
 
   const renderSelectField = (
-      name: keyof FormData,
-      label: string,
-      options: { value: string; label: string }[]
+    name: keyof FormData,
+    label: string,
+    options: { value: string; label: string }[]
   ) => (
-      <FormControl fullWidth margin="dense" error={!!errors[name]}>
-        <InputLabel>{label}</InputLabel>
-        <Controller
-            name={name}
-            control={control}
-            render={({ field }) => (
-                <Select {...field} label={label}>
-                  {options.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                  ))}
-                </Select>
-            )}
-        />
-        <p style={{ color: 'red' }}>{errors[name]?.message}</p>
-      </FormControl>
+    <FormControl fullWidth margin="dense" error={!!errors[name]}>
+      <InputLabel>{label}</InputLabel>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <Select {...field} label={label}>
+            {options.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      />
+      <p style={{ color: 'red' }}>{errors[name]?.message}</p>
+    </FormControl>
   );
-
-
-
 
   if (!formData) return null;
 
   return (
-      <Dialog
-          open={open}
-          onClose={onClose}
-          PaperProps={{
-            component: 'form',
-            onSubmit: handleSubmit(onSubmit),
-          }}
-      >
-        <DialogTitle>Add New Student Record</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To add a new student record, please enter the details of the student below.
-          </DialogContentText>
-          {renderTextField('name', 'Name')}
-          {renderTextField('email', 'Email Address', 'email')}
-          {renderTextField('phone', 'Phone Number')}
-          {renderTextField('class', 'Class')}
-          {renderTextField('section', 'Section')}
-          {renderTextField('roll', 'Roll Number')}
-          {renderTextField('school', 'School')}
-          {renderSelectField('gender', 'Gender', [
-            { value: '', label: 'Select Gender' },
-            { value: 'male', label: 'Male' },
-            { value: 'female', label: 'Female' },
-            { value: 'others', label: 'Others' },
-          ])}
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Controller
-                name="date"
-                control={control}
-                render={({ field }) => (
-                    <DatePicker
-                        {...field}
-                        label="Date of Birth"
-                        value={field.value ? dayjs(field.value) : null}
-                        onChange={(date) => field.onChange(date?.toDate() || null)}
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            margin: 'dense',
-                            error: !!errors.date,
-                            helperText: errors.date?.message,
-                          },
-                        }}
-                    />
-                )}
-            />
-          </LocalizationProvider>
-          {renderSelectField('status', 'Status', [
-            { value: '', label: 'Select Status' },
-            { value: 'alumni', label: 'Alumni' },
-            { value: 'pursuing', label: 'Pursuing' },
-          ])}
-          {renderTextField('address', 'Address')}
-          {renderSelectField('grade', 'Grade', [
-            { value: '', label: 'Select Grade' },
-            { value: 'A+', label: 'A+' },
-            { value: 'A', label: 'A' },
-            { value: 'B+', label: 'B+' },
-            { value: 'B', label: 'B' },
-            { value: 'C+', label: 'C+' },
-            { value: 'C', label: 'C' },
-            { value: 'D+', label: 'D+' },
-            { value: 'D', label: 'D' },
-            { value: 'E', label: 'E' },
-          ])}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Discard</Button>
-          <Button type="submit">Create</Button>
-        </DialogActions>
-      </Dialog>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        component: 'form',
+        onSubmit: handleSubmit(onSubmit),
+      }}
+    >
+      <DialogTitle>Add New Student Record</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          To add a new student record, please enter the details of the student below.
+        </DialogContentText>
+        {renderTextField('name', 'Name')}
+        {renderTextField('email', 'Email Address', 'email')}
+        {renderTextField('phone', 'Phone Number')}
+        {renderTextField('class', 'Class')}
+        {renderTextField('section', 'Section')}
+        {renderTextField('roll', 'Roll Number')}
+        {renderTextField('school', 'School')}
+        {renderSelectField('gender', 'Gender', [
+          { value: '', label: 'Select Gender' },
+          { value: 'male', label: 'Male' },
+          { value: 'female', label: 'Female' },
+          { value: 'others', label: 'Others' },
+        ])}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Controller
+            name="date"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                {...field}
+                label="Date of Birth"
+                value={field.value ? dayjs(field.value) : null}
+                onChange={(date) => field.onChange(date?.toDate() || null)}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    margin: 'dense',
+                    error: !!errors.date,
+                    helperText: errors.date?.message,
+                  },
+                }}
+              />
+            )}
+          />
+        </LocalizationProvider>
+        {renderSelectField('status', 'Status', [
+          { value: '', label: 'Select Status' },
+          { value: 'alumni', label: 'Alumni' },
+          { value: 'pursuing', label: 'Pursuing' },
+        ])}
+        {renderTextField('address', 'Address')}
+        {renderSelectField('grade', 'Grade', [
+          { value: '', label: 'Select Grade' },
+          { value: 'A+', label: 'A+' },
+          { value: 'A', label: 'A' },
+          { value: 'B+', label: 'B+' },
+          { value: 'B', label: 'B' },
+          { value: 'C+', label: 'C+' },
+          { value: 'C', label: 'C' },
+          { value: 'D+', label: 'D+' },
+          { value: 'D', label: 'D' },
+          { value: 'E', label: 'E' },
+        ])}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Discard</Button>
+        <Button type="submit">Update</Button>
+      </DialogActions>
+    </Dialog>
   );
 }

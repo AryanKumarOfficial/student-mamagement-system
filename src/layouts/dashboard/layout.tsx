@@ -6,13 +6,15 @@ import { useTheme } from '@mui/material/styles';
 
 import { Main } from './main';
 import { layoutClasses } from '../classes';
+import {Label} from "../../components/label";
 import { NavMobile, NavDesktop } from './nav';
 import useAuthStore from '../../store/authstore';
 import { _workspaces } from '../config-nav-workspace';
+import {icon, navData} from '../config-nav-dashboard';
 import { MenuButton } from '../components/menu-button';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
-import { navData, AuthNavData } from '../config-nav-dashboard';
+import useStudentStore from '../../store/studentStore';
 
 // ----------------------------------------------------------------------
 
@@ -25,6 +27,29 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) {
+    const {students} = useStudentStore()
+     const AuthNavData = [
+       {
+         title: 'Dashboard',
+         path: '/',
+         icon: icon('ic-analytics'),
+       },
+       {
+         title: 'Students',
+         path: '/students',
+         icon: icon('ic-user'),
+         info: (
+           <Label color="secondary" variant="inverted">
+             {students.length}
+           </Label>
+         ),
+       },
+       {
+         title: 'Logout',
+         path: '#',
+         icon: icon('ic-lock'),
+       },
+     ];
   const { authenticated } = useAuthStore();
   const theme = useTheme();
 

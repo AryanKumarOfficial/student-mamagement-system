@@ -19,12 +19,15 @@ export function TableNoData({ searchQuery, ...other }: TableNoDataProps) {
           <Typography variant="h6" sx={{ mb: 1 }}>
             Not found
           </Typography>
-
-          <Typography variant="body2">
-            No results found for &nbsp;
-            <strong>&quot;{searchQuery}&quot;</strong>.
-            <br /> Try checking for typos or using complete words.
-          </Typography>
+          {!searchQuery?.length ? (
+            <Typography variant="body2">No Data found!</Typography>
+          ) : (
+            <Typography variant="body2">
+              No results found for &nbsp;
+              <strong>&quot;{searchQuery}&quot;</strong>.
+              <br /> Try checking for typos or using complete words.
+            </Typography>
+          )}
         </Box>
       </TableCell>
     </TableRow>
