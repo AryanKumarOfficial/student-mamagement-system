@@ -32,6 +32,7 @@ import useStudentStore from '../../../store/studentStore';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 import type { StudentProps } from '../../../store/studentStore';
+import ViewStudent from "./Preview";
 
 // ----------------------------------------------------------------------
 
@@ -60,7 +61,7 @@ export function StudentView() {
     filterName,
   });
 
-  const notFound = (dataFiltered.length === 0 || !!filterName);
+  const notFound = dataFiltered.length === 0 || !!filterName;
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -264,6 +265,13 @@ export function UserTableRow({
     setOpenEdit((prev) => !prev);
   };
 
+  const [openPreview, setOpenPreview] = useState<boolean>(false);
+  const togglePreview = () => {
+    console.log("changing preview");
+    handleCloseMenu()
+    setOpenPreview((prev) => !prev);
+  };
+
   return (
     <>
       <TableRow hover>
@@ -293,6 +301,10 @@ export function UserTableRow({
               horizontal: 'right',
             }}
           >
+            <MenuItem onClick={togglePreview}>
+              <Iconify icon="eva:eye-fill" sx={{ mr: 1 }} />
+              View
+            </MenuItem>
             <MenuItem onClick={handleEditToggle}>
               <Iconify icon="material-symbols:edit" sx={{ mr: 1 }} />
               Edit
@@ -305,6 +317,7 @@ export function UserTableRow({
         </TableCell>
       </TableRow>
       <EditStudentDialog open={openEdit} onClose={handleEditToggle} student={row} />
+      <ViewStudent student={row} isOpen={openPreview} toggleDrawer={togglePreview}/>
     </>
   );
 }

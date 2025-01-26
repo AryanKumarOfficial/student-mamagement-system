@@ -31,6 +31,7 @@
     "@fontsource/barlow": "^5.0.14",
     "@hookform/resolvers": "^3.10.0",
     "@iconify/react": "^5.0.2",
+    "@mui/icons-material": "^5.16.14",
     "@mui/lab": "^5.0.0-alpha.173",
     "@mui/material": "^5.16.14",
     "@mui/x-date-pickers": "^7.24.1",
