@@ -97,7 +97,7 @@ export function EditStudentDialog({
       status: student?.status ?? '',
       grade: student?.grade ?? '',
       address: student?.address ?? '',
-      date: null,
+      date: student?.date ?? null,
     },
   });
 
