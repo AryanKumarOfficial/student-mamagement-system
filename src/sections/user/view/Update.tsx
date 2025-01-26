@@ -84,17 +84,17 @@ export function EditStudentDialog({
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      class: '',
-      section: '',
-      roll: '',
-      school: '',
-      gender: '',
-      status: '',
-      grade: '',
-      address: '',
+      name:student?.name?? '',
+      email:student?.email ?? '',
+      phone:student?.phone ?? '',
+      class:student?.class ?? '',
+      section:student?.section ?? '',
+      roll: student?.roll ?? '',
+      school:student?.school ?? '',
+      gender:student?.gender ?? '',
+      status:student?.status ?? '',
+      grade:student?.grade ?? '',
+      address:student?.address ?? '',
       date: null,
     },
   });
@@ -157,18 +157,8 @@ export function EditStudentDialog({
       </FormControl>
   );
 
-  useEffect(() => {
-    setFormData(student);
-  }, [student]);
 
-  const handleChange =
-    (field: keyof StudentProps) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => (prev ? { ...prev, [field]: event.target.value } : null));
-    };
 
-  const handleSave = () => {
-    onClose();
-  };
 
   if (!formData) return null;
 
