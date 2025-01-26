@@ -12,6 +12,7 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import type { StudentProps } from '../../store/studentStore';
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +27,7 @@ export type UserProps = {
 };
 
 type UserTableRowProps = {
-  row: UserProps;
+  row: StudentProps;
   selected: boolean;
   onSelectRow: () => void;
 };
@@ -51,17 +52,16 @@ export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
 
         <TableCell component="th" scope="row">
           <Box gap={2} display="flex" alignItems="center">
-            <Avatar alt={row.name} src={row.avatarUrl} />
             {row.name}
           </Box>
         </TableCell>
 
-        <TableCell>{row.company}</TableCell>
+        <TableCell>{row.id}</TableCell>
 
-        <TableCell>{row.role}</TableCell>
+        <TableCell>{row.email}</TableCell>
 
         <TableCell align="center">
-          {row.isVerified ? (
+          {row.status==="alumni" ? (
             <Iconify width={22} icon="solar:check-circle-bold" sx={{ color: 'success.main' }} />
           ) : (
             '-'

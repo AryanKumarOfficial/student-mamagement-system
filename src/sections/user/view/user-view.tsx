@@ -1,52 +1,52 @@
-import * as React from 'react';
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import TableBody from '@mui/material/TableBody';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
-import DialogContentText from '@mui/material/DialogContentText';
+import MenuItem from "@mui/material/MenuItem";
+import {
+  Box,
+  Card,
+  Menu,
+  Table,
+  Button,
+  Checkbox,
+  TableRow,
+  TableBody,
+  TableCell,
+  Typography,
+  IconButton,
+  TableContainer, TablePagination
+} from '@mui/material';
 
-import { _users } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
+import DialogForm from '../DialogForm';
 import { TableNoData } from '../table-no-data';
-import { UserTableRow } from '../user-table-row';
 import { UserTableHead } from '../user-table-head';
 import { TableEmptyRows } from '../table-empty-rows';
 import { UserTableToolbar } from '../user-table-toolbar';
+import useStudentStore from '../../../store/studentStore';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
-import type { UserProps } from '../user-table-row';
-import DialogForm from '../DialogForm';
+import type { StudentProps } from '../../../store/studentStore';
 
 // ----------------------------------------------------------------------
 
 export function StudentView() {
+  const { students } = useStudentStore();
   const table = useTable();
 
-  const [filterName, setFilterName] = useState('');
+  const [filterName, setFilterName] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
 
-  const dataFiltered: UserProps[] = applyFilter({
-    inputData: _users,
+  const dataFiltered: StudentProps[] = applyFilter({
+    inputData: students,
     comparator: getComparator(table.order, table.orderBy),
     filterName,
   });
 
   const notFound = !dataFiltered.length && !!filterName;
-  const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -55,6 +55,7 @@ export function StudentView() {
   const handleClose = () => {
     setOpen(false);
   };
+
   return (
     <DashboardContent>
       <Box display="flex" alignItems="center" mb={5}>
@@ -87,22 +88,22 @@ export function StudentView() {
               <UserTableHead
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={_users.length}
+                rowCount={students.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
-                onSelectAllRows={(checked) =>
+                onSelectAllRows={(checked: boolean) =>
                   table.onSelectAllRows(
                     checked,
-                    _users.map((user) => user.id)
+                    students.map((user) => user.id).filter((id): id is string => id !== undefined) // Ensure IDs are valid
                   )
                 }
                 headLabel={[
+                  { id: 'id', label: 'ID' },
                   { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
-                  { id: '' },
+                  { id: 'role', label: 'Class' },
+                  { id: 'section', label: 'Section', align: 'center' },
+                  { id: 'roll', label: 'Roll Number' },
+                  { id: '' }, // For actions
                 ]}
               />
               <TableBody>
@@ -111,18 +112,19 @@ export function StudentView() {
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
+                  .filter((row): row is StudentProps => row.id !== undefined) // Ensure rows have valid IDs
                   .map((row) => (
                     <UserTableRow
                       key={row.id}
                       row={row}
-                      selected={table.selected.includes(row.id)}
+                      selected={table.selected.includes(row.id as string)}
                       onSelectRow={() => table.onSelectRow(row.id)}
                     />
                   ))}
 
                 <TableEmptyRows
                   height={68}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, _users.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, students.length)}
                 />
 
                 {notFound && <TableNoData searchQuery={filterName} />}
@@ -134,13 +136,14 @@ export function StudentView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={_users.length}
+          count={students.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}
           onRowsPerPageChange={table.onChangeRowsPerPage}
         />
       </Card>
+
       <DialogForm open={open} handleClose={handleClose} />
     </DashboardContent>
   );
@@ -149,9 +152,9 @@ export function StudentView() {
 // ----------------------------------------------------------------------
 
 export function useTable() {
-  const [page, setPage] = useState(0);
-  const [orderBy, setOrderBy] = useState('name');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page, setPage] = useState<number>(0);
+  const [orderBy, setOrderBy] = useState<string>('name');
+  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [selected, setSelected] = useState<string[]>([]);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -173,7 +176,9 @@ export function useTable() {
   }, []);
 
   const onSelectRow = useCallback(
-    (inputValue: string) => {
+    (inputValue: string | undefined) => {
+      if (inputValue === undefined) return; // Skip if `inputValue` is undefined
+
       const newSelected = selected.includes(inputValue)
         ? selected.filter((value) => value !== inputValue)
         : [...selected, inputValue];
@@ -212,4 +217,79 @@ export function useTable() {
     onSelectAllRows,
     onChangeRowsPerPage,
   };
+}
+
+export function UserTableRow({
+                               row,
+                               selected,
+                               onSelectRow,
+                             }: {
+  row: StudentProps;
+  selected: boolean;
+  onSelectRow: () => void;
+}) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleEdit = () => {
+    console.log(`Edit student with ID: ${row.id}`);
+    // Add logic to open an edit dialog or perform navigation
+    handleCloseMenu();
+  };
+
+  const handleDelete = () => {
+    console.log(`Delete student with ID: ${row.id}`);
+    // Add logic to delete the student record
+    handleCloseMenu();
+  };
+
+  return (
+      <TableRow hover>
+        <TableCell padding="checkbox">
+          <Checkbox checked={selected} onClick={onSelectRow} />
+        </TableCell>
+        <TableCell>{row.id}</TableCell>
+        <TableCell>{row.name}</TableCell>
+        <TableCell>{row.class}</TableCell>
+        <TableCell align="center">{row.section}</TableCell>
+        <TableCell>{row.roll}</TableCell>
+        <TableCell align="right">
+          {/* Dropdown Trigger */}
+          <IconButton onClick={handleOpenMenu}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
+
+          {/* Dropdown Menu */}
+          <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleCloseMenu}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+          >
+            <MenuItem onClick={handleEdit}>
+              <Iconify icon="material-symbols:edit" sx={{ mr: 1 }} />
+              Edit
+            </MenuItem>
+            <MenuItem onClick={handleDelete}>
+              <Iconify icon="material-symbols:delete" sx={{ mr: 1 }} />
+              Delete
+            </MenuItem>
+          </Menu>
+        </TableCell>
+      </TableRow>
+  );
 }
