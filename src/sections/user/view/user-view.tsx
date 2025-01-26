@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 
-import MenuItem from "@mui/material/MenuItem";
+import MenuItem from '@mui/material/MenuItem';
 import {
   Box,
   Card,
@@ -13,7 +13,8 @@ import {
   TableCell,
   Typography,
   IconButton,
-  TableContainer, TablePagination
+  TableContainer,
+  TablePagination,
 } from '@mui/material';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -30,6 +31,7 @@ import useStudentStore from '../../../store/studentStore';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 import type { StudentProps } from '../../../store/studentStore';
+import {EditStudentDialog} from "./Update";
 
 // ----------------------------------------------------------------------
 
@@ -145,6 +147,7 @@ export function StudentView() {
       </Card>
 
       <DialogForm open={open} handleClose={handleClose} />
+
     </DashboardContent>
   );
 }
@@ -220,14 +223,15 @@ export function useTable() {
 }
 
 export function UserTableRow({
-                               row,
-                               selected,
-                               onSelectRow,
-                             }: {
+  row,
+  selected,
+  onSelectRow,
+}: {
   row: StudentProps;
   selected: boolean;
   onSelectRow: () => void;
 }) {
+  const { updateStudent, deleteStudent } = useStudentStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -238,58 +242,61 @@ export function UserTableRow({
     setAnchorEl(null);
   };
 
-  const handleEdit = () => {
-    console.log(`Edit student with ID: ${row.id}`);
-    // Add logic to open an edit dialog or perform navigation
-    handleCloseMenu();
-  };
-
   const handleDelete = () => {
     console.log(`Delete student with ID: ${row.id}`);
     // Add logic to delete the student record
     handleCloseMenu();
   };
 
-  return (
-      <TableRow hover>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-        <TableCell>{row.id}</TableCell>
-        <TableCell>{row.name}</TableCell>
-        <TableCell>{row.class}</TableCell>
-        <TableCell align="center">{row.section}</TableCell>
-        <TableCell>{row.roll}</TableCell>
-        <TableCell align="right">
-          {/* Dropdown Trigger */}
-          <IconButton onClick={handleOpenMenu}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+  const [openEdit, setOpenEdit] = useState<boolean>(false);
+  const handleEditToggle = () => {
+    setOpenEdit((prev) => !prev);
+  }
 
-          {/* Dropdown Menu */}
-          <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleCloseMenu}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-          >
-            <MenuItem onClick={handleEdit}>
-              <Iconify icon="material-symbols:edit" sx={{ mr: 1 }} />
-              Edit
-            </MenuItem>
-            <MenuItem onClick={handleDelete}>
-              <Iconify icon="material-symbols:delete" sx={{ mr: 1 }} />
-              Delete
-            </MenuItem>
-          </Menu>
-        </TableCell>
-      </TableRow>
+
+  return (
+      <>
+    <TableRow hover>
+      <TableCell padding="checkbox">
+        <Checkbox checked={selected} onClick={onSelectRow} />
+      </TableCell>
+      <TableCell>{row.id}</TableCell>
+      <TableCell>{row.name}</TableCell>
+      <TableCell>{row.class}</TableCell>
+      <TableCell align="center">{row.section}</TableCell>
+      <TableCell>{row.roll}</TableCell>
+      <TableCell align="right">
+        {/* Dropdown Trigger */}
+        <IconButton onClick={handleOpenMenu}>
+          <Iconify icon="eva:more-vertical-fill" />
+        </IconButton>
+
+        {/* Dropdown Menu */}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleCloseMenu}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <MenuItem onClick={handleEditToggle}>
+            <Iconify icon="material-symbols:edit" sx={{ mr: 1 }} />
+            Edit
+          </MenuItem>
+          <MenuItem onClick={handleDelete}>
+            <Iconify icon="material-symbols:delete" sx={{ mr: 1 }} />
+            Delete
+          </MenuItem>
+        </Menu>
+      </TableCell>
+    </TableRow>
+        <EditStudentDialog open={openEdit} onClose={handleEditToggle} student={row}/>
+        </>
   );
 }
